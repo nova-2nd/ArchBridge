@@ -1,0 +1,4 @@
+.packer/
+.vagrant/
+packer_cache/
+vagrant/cache.vhdx
