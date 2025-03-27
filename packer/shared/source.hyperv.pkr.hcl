@@ -31,3 +31,25 @@ source "hyperv-iso" "arch" {
   #disable_shutdown                  = true
   shutdown_timeout                  = "15m"
 }
+
+source "hyperv-vmcx" "arch" {
+  generation                        = 2
+  enable_secure_boot                = false
+  secure_boot_template              = "MicrosoftUEFICertificateAuthority"
+  switch_name                       = "Default Switch"
+  enable_mac_spoofing               = true
+  cpus                              = 4
+  enable_virtualization_extensions  = true
+  memory                            = 8192
+  enable_dynamic_memory             = false
+  disk_size                         = 20480
+
+  ssh_username                      = "vagrant"
+  ssh_private_key_file              = "ansible/files/vagrant.key.ed25519"
+
+  clone_from_vmcx_path              = ".packer/artifacts/debian-12/Virtual Machines"
+
+  shutdown_command                  = "shutdown -h now"
+  #disable_shutdown                  = true
+  shutdown_timeout                  = "15m"
+}
