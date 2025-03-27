@@ -1,6 +1,6 @@
 #cloud-config
 
-cloud_init_modules: [ssh]
+cloud_init_modules: ["ssh"]
 
 cloud_config_modules: []
 
