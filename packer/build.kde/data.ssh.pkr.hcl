@@ -1,0 +1,1 @@
+../shared/data.ssh.pkr.hcl

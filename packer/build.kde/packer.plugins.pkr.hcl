@@ -1,0 +1,1 @@
+../shared/packer.plugins.pkr.hcl
