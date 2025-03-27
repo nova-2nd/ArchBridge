@@ -13,18 +13,24 @@ source "hyperv-iso" "arch" {
 
   ssh_username                      = "root"
   ssh_private_key_file              = data.sshkey.temp.private_key_path
+  #ssh_timeout                       = "15m"
 
   iso_url                           = var.arch-bridge_iso-url
   iso_checksum                      = var.arch-bridge_iso-hash
 
+  cd_label                          = "cidata"
+  cd_files                          = ["scripts/meta-data"]
+  cd_content                        = {
+                                        "user-data" = templatefile("../../scripts/user-data.pkrtpl.hcl", {sshpub = data.sshkey.temp.public_key})
+                                      }
+
   boot_wait                         = "3s"
   boot_command                      = [
-                                        # Boot phase 1
-                                        "e<end><spacebar>cow_spacesize=${var.arch-bridge_cow-size}M<spacebar>mirror=${var.arch-bridge_mirror}<enter><wait15s>",
-                                        # Boot phase 2
-                                        "echo ${data.sshkey.temp.public_key} > /root/.ssh/authorized_keys<enter>",
-                                        "systemctl start sshd<enter>",
-                                        "top<enter>"
+                                        "e<end><spacebar>",
+                                        "cow_spacesize=${var.arch-bridge_cow-size}M<spacebar>",
+                                        "mirror=${var.arch-bridge_mirror}<spacebar>",
+                                        "ds=nocloud<spacebar>",
+                                        "network-config=disabled<enter>"
                                       ]
 
   shutdown_command                  = "shutdown -h now"
