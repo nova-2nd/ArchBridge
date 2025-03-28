@@ -34,7 +34,7 @@ source "hyperv-iso" "arch" {
                                       ]
 
   shutdown_command                  = "shutdown -h now"
-  #disable_shutdown                  = true
+  disable_shutdown                  = true
   shutdown_timeout                  = "15m"
 }
 

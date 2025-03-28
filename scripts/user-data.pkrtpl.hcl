@@ -12,5 +12,3 @@ disable_root: false
 ssh_genkeytypes: ["ed25519"]
 disable_root_opts: ""
 ssh_authorized_keys: ["${sshpub}"]
-
-

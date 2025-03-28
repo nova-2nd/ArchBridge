@@ -194,6 +194,8 @@
             - grub-efi
             - snmp
             - openssh-server
+            - cloud-init
+            - sudo
           state: present
       - name: Install GRUB on ESP
         ansible.builtin.shell:
@@ -221,7 +223,12 @@
           - hv-kvp-daemon
           - hv-vss-daemon
           - hv-fcopy-daemon
+      - name: set root password
+        ansible.builtin.user:
+          name: root
+          password: "$y$j9T$qDayOdSe2TUId1eQEaRV5.$qg7vL52D842FdUK6qj/sqvPMB0YbxIWJDHKA3o0OVU9"
     - name: Configure for Vagrant
+      when: 0>1
       block:
       - name: Install sudo
         ansible.builtin.package:
