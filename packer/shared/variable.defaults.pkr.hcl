@@ -39,6 +39,21 @@ variable "build_slug" {
   }
 }
 
+variable "artifacts_root" {
+  type    = string
+  default = "packer/artifacts"
+}
+
+variable "artifacts_packer" {
+  type    = string
+  default = "packer/artifacts/packer"
+}
+
+variable "artifacts_vagrant" {
+  type    = string
+  default = "packer/artifacts/vagrant"
+}
+
 variable "http_proxy" {
   type    = string
   default = ""

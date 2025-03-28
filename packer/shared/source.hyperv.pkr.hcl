@@ -1,5 +1,4 @@
-source "hyperv-iso" "arch" {
-  #vm_name                           = "Arch-Bridge"
+source "hyperv-iso" "arch-bridge" {
   generation                        = 2
   enable_secure_boot                = false
   secure_boot_template              = "MicrosoftUEFICertificateAuthority"
@@ -13,15 +12,14 @@ source "hyperv-iso" "arch" {
 
   ssh_username                      = "root"
   ssh_private_key_file              = data.sshkey.temp.private_key_path
-  #ssh_timeout                       = "15m"
-
+ 
   iso_url                           = var.arch-bridge_iso-url
   iso_checksum                      = var.arch-bridge_iso-hash
 
   cd_label                          = "cidata"
-  cd_files                          = ["scripts/meta-data"]
+  cd_files                          = ["packer/files/meta-data"]
   cd_content                        = {
-                                        "user-data" = templatefile("../../scripts/user-data.pkrtpl.hcl", {sshpub = data.sshkey.temp.public_key})
+                                        "user-data" = templatefile("../files/user-data.pkrtpl.hcl", {sshpub = data.sshkey.temp.public_key})
                                       }
 
   boot_wait                         = "3s"
@@ -34,8 +32,8 @@ source "hyperv-iso" "arch" {
                                       ]
 
   shutdown_command                  = "shutdown -h now"
-  disable_shutdown                  = true
   shutdown_timeout                  = "15m"
+  #disable_shutdown                  = true
 }
 
 source "hyperv-vmcx" "arch" {
@@ -50,12 +48,18 @@ source "hyperv-vmcx" "arch" {
   enable_dynamic_memory             = false
   disk_size                         = 20480
 
-  ssh_username                      = "vagrant"
-  ssh_private_key_file              = "ansible/files/vagrant.key.ed25519"
+  ssh_username                      = "root"
+  ssh_private_key_file              = data.sshkey.temp.private_key_path
 
   clone_from_vmcx_path              = ".packer/artifacts/debian-12/Virtual Machines"
 
+  cd_label                          = "cidata"
+  cd_files                          = ["packer/files/meta-data"]
+  cd_content                        = {
+                                        "user-data" = templatefile("../files/user-data.pkrtpl.hcl", {sshpub = data.sshkey.temp.public_key})
+                                      }
+
   shutdown_command                  = "shutdown -h now"
-  #disable_shutdown                  = true
   shutdown_timeout                  = "15m"
+  #disable_shutdown                  = true
 }

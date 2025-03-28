@@ -1,18 +1,17 @@
 build {
-  name = "arch-bridge"
   dynamic "source" {
-    labels                        = ["source.hyperv-iso.arch"]
+    labels                        = ["source.hyperv-iso.arch-bridge"]
     for_each                      = var.build_slug
     content {         
       name                        = source.value
       vm_name                     = source.value
-      output_directory            = ".packer/artifacts/${source.value}/"
+      output_directory            = "${var.artifacts_packer}/hyperv/${source.value}/"
     }
   }
 
   provisioner "shell" {
     # Boot phase 3
-    script                        = "scripts/arch-bridge_phase3.sh"
+    script                        = "packer/files/arch-bridge_phase3.sh"
     environment_vars              = ["http_proxy=${var.http_proxy}"]
   }
 
@@ -27,11 +26,12 @@ build {
   }
 
   post-processor "manifest" {
-    output                        = ".packer/artifacts/vagrant/packer_${source.name}-manifest.json"
+    strip_path                    = true
+    output                        = "${var.artifacts_packer}/hyperv/${source.name}/manifest.json"
   }
 
   post-processor "vagrant" {
     keep_input_artifact           = true
-    output                        = ".packer/artifacts/vagrant/packer_${source.name}.box"
+    output                        = "${var.artifacts_vagrant}/hyperv/${source.name}.box"
   }
 }

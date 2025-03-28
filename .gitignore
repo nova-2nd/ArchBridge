@@ -1,4 +1,6 @@
-.packer/
-.vagrant/
-packer_cache/
-vagrant/cache.vhdx
+packer/cache
+packer/artifacts/packer/*
+packer/artifacts/vagrant/*
+packer_cache
+
+!*.gitkeep
