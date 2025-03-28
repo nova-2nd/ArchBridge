@@ -1,0 +1,11 @@
+---
+- name: Provision system
+  hosts: all
+  environment:
+    http_proxy: '{{ http_proxy }}'
+  tasks:
+    - name: Install KDE
+      ansible.builtin.package:
+        name:
+          - task-kde-desktop
+        state: present

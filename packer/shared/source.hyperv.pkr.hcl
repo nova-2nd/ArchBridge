@@ -11,7 +11,7 @@ source "hyperv-iso" "arch-bridge" {
   disk_size                         = 20480
 
   ssh_username                      = "root"
-  ssh_private_key_file              = data.sshkey.temp.private_key_path
+  ssh_private_key_file              = local.ssh_priv_key_path
  
   iso_url                           = var.arch-bridge_iso-url
   iso_checksum                      = var.arch-bridge_iso-hash
@@ -19,7 +19,7 @@ source "hyperv-iso" "arch-bridge" {
   cd_label                          = "cidata"
   cd_files                          = ["packer/files/meta-data"]
   cd_content                        = {
-                                        "user-data" = templatefile("../files/user-data.pkrtpl.hcl", {sshpub = data.sshkey.temp.public_key})
+                                        "user-data" = templatefile("../files/user-data.pkrtpl.hcl", {sshpub = local.ssh_pub_key})
                                       }
 
   boot_wait                         = "3s"
@@ -36,7 +36,7 @@ source "hyperv-iso" "arch-bridge" {
   #disable_shutdown                  = true
 }
 
-source "hyperv-vmcx" "arch" {
+source "hyperv-vmcx" "native" {
   generation                        = 2
   enable_secure_boot                = false
   secure_boot_template              = "MicrosoftUEFICertificateAuthority"
@@ -49,17 +49,18 @@ source "hyperv-vmcx" "arch" {
   disk_size                         = 20480
 
   ssh_username                      = "root"
-  ssh_private_key_file              = data.sshkey.temp.private_key_path
+  #ssh_agent_auth                    = false
+  ssh_private_key_file              = local.ssh_priv_key_path
 
-  clone_from_vmcx_path              = ".packer/artifacts/debian-12/Virtual Machines"
+  clone_from_vmcx_path              = "${var.artifacts_packer}/hyperv/debian-12/"
 
   cd_label                          = "cidata"
   cd_files                          = ["packer/files/meta-data"]
   cd_content                        = {
-                                        "user-data" = templatefile("../files/user-data.pkrtpl.hcl", {sshpub = data.sshkey.temp.public_key})
+                                        "user-data" = templatefile("../files/user-data.pkrtpl.hcl", {sshpub = local.ssh_pub_key})
                                       }
 
   shutdown_command                  = "shutdown -h now"
   shutdown_timeout                  = "15m"
-  #disable_shutdown                  = true
+  disable_shutdown                  = true
 }
