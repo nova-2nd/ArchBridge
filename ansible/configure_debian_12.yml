@@ -1,0 +1,111 @@
+- name: Configure new system
+  block:
+  - name: Configure locales
+    ansible.builtin.debconf:
+      name: locales
+      question: locales/locales_to_be_generated
+      value: en_US.UTF-8 UTF-8
+      vtype: multiselect
+  - name: Configure default locale
+    ansible.builtin.debconf:
+      name: locales
+      question: locales/default_environment_locale
+      value: C.UTF-8
+      vtype: select
+  - name: Install packages
+    ansible.builtin.package:
+      name:
+        - lvm2
+        - xfsprogs
+        - locales
+        - linux-image-amd64
+        - grub-efi
+        - snmp
+        - openssh-server
+        - cloud-init
+        - sudo
+      state: present
+  - name: Install GRUB on ESP
+    ansible.builtin.shell:
+      cmd: . /etc/profile && grub-install --efi-directory=/boot
+  - name: Ensure SELinux is set to enforcing mode
+    ansible.builtin.lineinfile:
+      path: /etc/default/grub
+      regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+      line: GRUB_CMDLINE_LINUX_DEFAULT=""
+  - name: Update GRUB config
+    ansible.builtin.shell:
+      cmd: . /etc/profile && update-grub
+- name: Install Hyper-V additions
+  when: ansible_facts['virtualization_type'] == "VirtualPC"
+  block:
+  - name: Install Hyper-V daemons
+    ansible.builtin.package:
+      name: hyperv-daemons
+      state: present
+  - name: Enable Hyper-V daemons
+    ansible.builtin.systemd_service:
+      name: "{{ item }}"
+      enabled: true
+    loop:
+      - hv-kvp-daemon
+      - hv-vss-daemon
+      - hv-fcopy-daemon
+  - name: set root password
+    ansible.builtin.user:
+      name: root
+      password: "$y$j9T$qDayOdSe2TUId1eQEaRV5.$qg7vL52D842FdUK6qj/sqvPMB0YbxIWJDHKA3o0OVU9"
+- name: Configure for Vagrant
+  when: 0>1
+  block:
+  - name: Install sudo
+    ansible.builtin.package:
+      name: sudo
+      state: present
+  - name: set root password
+    ansible.builtin.user:
+      name: root
+      password: "$y$j9T$qDayOdSe2TUId1eQEaRV5.$qg7vL52D842FdUK6qj/sqvPMB0YbxIWJDHKA3o0OVU9"
+  - name: Create vagrant user
+    ansible.builtin.user:
+      name: vagrant
+      password: "$y$j9T$qDayOdSe2TUId1eQEaRV5.$qg7vL52D842FdUK6qj/sqvPMB0YbxIWJDHKA3o0OVU9"
+      shell: /bin/bash
+  - name: Add vagrant user to sudoers
+    ansible.builtin.lineinfile:
+      path: /etc/sudoers.d/vagrant
+      line: "vagrant ALL=(ALL) NOPASSWD: ALL"
+      create: yes
+  - name: Create vagrant user .ssh dir
+    ansible.builtin.file:
+      path: /home/vagrant/.ssh
+      state: directory
+      owner: vagrant
+      group: vagrant
+      mode: '0700'
+  - name: Copy vagrant insecure keys
+    ansible.builtin.copy:
+      src: files/vagrant-insecure.pub
+      dest: /home/vagrant/.ssh/authorized_keys
+      owner: vagrant
+      group: vagrant
+      mode: '0600'
+- name: Configure network
+  block:
+  - name: Copy NIC config
+    ansible.builtin.copy:
+      src: files/eth0.dhcp.cfg
+      dest: /etc/systemd/network/eth0.network
+  - name: Install systemd-resolved
+    ansible.builtin.package:
+      name: systemd-resolved
+      state: present
+  - name: Enable network services
+    ansible.builtin.systemd_service:
+      name: systemd-networkd
+      enabled: true
+- name: Cleanup
+  block:      
+  - name: Delete apt cache
+    ansible.builtin.apt:
+      autoclean: yes

@@ -1,0 +1,4 @@
+---
+- name: Provision system
+  ansible.builtin.debug:
+    msg: play1

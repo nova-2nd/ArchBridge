@@ -1,0 +1,72 @@
+---
+- name: Bootstrap OS
+  block:
+    - name: Install debootstrap
+      ansible.builtin.package:
+        name: debootstrap
+        state: present
+    - name: Bootstrap base system
+      ansible.builtin.shell:
+        cmd: debootstrap --verbose --include=python3 bookworm /mnt http://debian.otenet.gr/debian
+    - name: Mount proc
+      ansible.posix.mount:
+        path: /mnt/proc
+        src: proc
+        fstype: proc
+        state: ephemeral
+    - name: Mount sys
+      ansible.posix.mount:
+        path: /mnt/sys
+        src: sysfs
+        fstype: sysfs
+        state: ephemeral
+    - name: Mount efivars
+      ansible.posix.mount:
+        path: /mnt/sys/firmware/efi/efivars
+        src: efivarfs
+        fstype: efivarfs
+        state: ephemeral
+    - name: Mount dev
+      ansible.posix.mount:
+        path: /mnt/dev
+        src: udev
+        fstype: devtmpfs
+        state: ephemeral
+    - name: Mount devpts
+      ansible.posix.mount:
+        path: /mnt/dev/pts
+        src: devpts
+        fstype: devpts
+        state: ephemeral
+    - name: Mount shm
+      ansible.posix.mount:
+        path: /mnt/dev/shm
+        src: shm
+        fstype: tmpfs
+        state: ephemeral
+    - name: Mount tmp
+      ansible.posix.mount:
+        path: /mnt/tmp
+        src: tmp
+        fstype: tmpfs
+        state: ephemeral
+    - name: Mount run
+      ansible.posix.mount:
+        path: /mnt/run
+        src: /run
+        fstype: none
+        opts: bind
+        state: ephemeral
+    - name: populate resolv.conf
+      ansible.builtin.shell:
+        cmd: echo "nameserver 8.8.8.8" > /mnt/etc/resolv.conf
+    - name: populate hostname
+      ansible.builtin.shell:
+        cmd: echo "debian" > /mnt/etc/hostname
+    - name: populate fstab
+      ansible.builtin.shell:
+        cmd: genfstab -U /mnt > /mnt/etc/fstab
+    - name: Add chroot to ansible inventory
+      ansible.builtin.add_host:
+        groups: chroots
+        name: /mnt

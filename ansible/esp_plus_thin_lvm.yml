@@ -1,0 +1,91 @@
+---
+- name: Partition disk
+  vars:
+    label: gpt
+    unit: MiB
+  block:
+    - name: Read device information
+      register: parted
+      community.general.parted:
+        device: /dev/sda
+        unit: '{{ unit }}'
+    - name: Remove all partitions from disk
+      community.general.parted:
+        device: /dev/sda
+        number: '{{ item.num }}'
+        state: absent
+      loop: '{{ parted.partitions }}'
+    - name: Create a ESP partition
+      register: parted
+      community.general.parted:
+        device: /dev/sda
+        label: '{{ label }}'
+        number: 1
+        flags: [esp]
+        state: present
+        fs_type: fat32
+        part_end: 513MiB
+        unit: '{{ unit }}'
+    - name: Create a LVM partition
+      register: parted
+      community.general.parted:
+        device: /dev/sda
+        label: '{{ label }}'
+        number: 2
+        flags: [lvm]
+        state: present
+        part_start: 513MiB
+        part_end: "100%"
+        unit: '{{ unit }}'
+    - name: Update ansible facts
+      ansible.builtin.setup:
+        gather_subset:
+          - '!all'
+          - devices
+- name: Create LVM volumes
+  block:
+    - name: Create LVM vg
+      community.general.lvg:
+        vg: vg.services
+        pvs: /dev/sda2
+    - name: Create a thin pool
+      community.general.lvol:
+        vg: vg.services
+        thinpool: testpool
+        size: 90%PVS
+    - name: Create the root volume
+      community.general.lvol:
+        vg: vg.services
+        lv: test
+        thinpool: testpool
+        size: 15g
+    - name: Update ansible facts
+      ansible.builtin.setup:
+        gather_subset:
+          - '!all'
+          - devices
+- name: Format volumes
+  block:
+    - name: Format ESP
+      community.general.filesystem:
+        fstype: vfat
+        dev: /dev/sda1
+        opts: "-F 32"
+    - name: Format root
+      community.general.filesystem:
+        fstype: xfs
+        dev: /dev/vg.services/test
+- name: Mount volumes
+  block:
+    - name: Mount root
+      ansible.posix.mount:
+        path: /mnt
+        src: /dev/vg.services/test
+        fstype: xfs
+        state: ephemeral
+    - name: Mount ESP
+      ansible.posix.mount:
+        path: /mnt/boot
+        src: /dev/sda1
+        fstype: vfat
+        state: ephemeral
