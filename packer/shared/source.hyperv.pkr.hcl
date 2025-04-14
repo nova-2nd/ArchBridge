@@ -62,5 +62,5 @@ source "hyperv-vmcx" "native" {
 
   shutdown_command                  = "shutdown -h now"
   shutdown_timeout                  = "15m"
-  disable_shutdown                  = true
+  #disable_shutdown                  = true
 }

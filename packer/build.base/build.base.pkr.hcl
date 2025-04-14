@@ -21,7 +21,8 @@ build {
     playbook_dir                  = "ansible"
     extra_arguments               = [
                                       "-vvv",
-                                      "-e http_proxy=${var.http_proxy}"
+                                      "-e http_proxy=${var.http_proxy}",
+                                      "-e build_slug=${source.name}"
                                     ]
   }
 
