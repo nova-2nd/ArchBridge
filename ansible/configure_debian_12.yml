@@ -28,7 +28,7 @@
   - name: Install GRUB on ESP
     ansible.builtin.shell:
       cmd: . /etc/profile && grub-install --efi-directory=/boot
-  - name: Ensure SELinux is set to enforcing mode
+  - name: Configure GRUB
     ansible.builtin.lineinfile:
       path: /etc/default/grub
       regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
