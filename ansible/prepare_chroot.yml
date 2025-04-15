@@ -1,6 +1,5 @@
 ---
 - name: Get build info
-  when: 0>1
   ansible.builtin.debug:
     msg:
     - "{{ build_slug }}"

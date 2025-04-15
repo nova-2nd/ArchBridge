@@ -3,6 +3,10 @@ mounttemplate: &mounttemplate
   fs: none
   state: ephemeral
 
+debiantemplate: &debiantemplate
+  mirror_url: http://debian.otenet.gr/debian
+  package_manager: apt
+
 chroot_root: /mnt
 
 chroot_mounts:
@@ -35,8 +39,8 @@ chroot_mounts:
 
 os_info:
   debian-12:
+    <<: *debiantemplate
     codename: bookworm
-    mirror_url: http://debian.otenet.gr/debian
   debian-13:
     codename: Trixie
     mirror_url: 123
