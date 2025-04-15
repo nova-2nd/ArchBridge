@@ -3,6 +3,7 @@
   hosts: all
   environment:
     http_proxy: '{{ http_proxy }}'
+  vars_files: vars.os.yaml
   tasks:
     - name: Create storage stack (ESP + thin LVM)
       ansible.builtin.import_tasks:

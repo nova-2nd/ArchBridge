@@ -1,0 +1,44 @@
+---
+mounttemplate: &mounttemplate
+  fs: none
+  state: ephemeral
+
+chroot_root: /mnt
+
+chroot_mounts:
+  - name: Process filesystem
+    <<: *mounttemplate
+    fs: proc
+    src: proc
+    dst: "{{ chroot_root }}/proc"
+    opts: nosuid,nodev,noexec
+  - name: Device filesystem
+    <<: *mounttemplate
+    src: /dev
+    dst: "{{ chroot_root }}/dev"
+    opts: rbind,rslave
+  - name: System filesystem
+    <<: *mounttemplate
+    src: /sys
+    dst: "{{ chroot_root }}/sys"
+    opts: rbind,rslave
+  - name: Temporary filesystem
+    <<: *mounttemplate
+    src: /tmp
+    dst: "{{ chroot_root }}/tmp"
+    opts: rbind
+  - name: Running filesystem
+    <<: *mounttemplate
+    src: /run
+    dst: "{{ chroot_root }}/run"
+    opts: bind
+
+os_info:
+  debian-12:
+    codename: bookworm
+    mirror_url: http://debian.otenet.gr/debian
+  debian-13:
+    codename: Trixie
+    mirror_url: 123
+  ubuntu-2404:
+    codename: 
