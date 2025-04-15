@@ -27,6 +27,7 @@ source "hyperv-iso" "arch-bridge" {
                                         "e<end><spacebar>",
                                         "cow_spacesize=${var.arch-bridge_cow-size}M<spacebar>",
                                         "mirror=${var.arch-bridge_mirror}<spacebar>",
+                                        "systemd.mask=pacman-init.service<spacebar>",
                                         "ds=nocloud<spacebar>",
                                         "network-config=disabled<enter>"
                                       ]
