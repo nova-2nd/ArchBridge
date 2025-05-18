@@ -1,3 +1,7 @@
+.ansible
+.venv
+.vscode
+
 packer/cache
 packer/artifacts/packer/*
 packer/artifacts/vagrant/*

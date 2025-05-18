@@ -2,11 +2,11 @@
 - name: Get build info
   ansible.builtin.debug:
     msg:
-    - "{{ build_slug }}"
-    - "{{ os_info[build_slug]['codename'] }}"
-    - "{{ os_info[build_slug] }}"
+      - "{{ build_slug }}"
+      - "{{ os_info[build_slug]['codename'] }}"
+      - "{{ os_info[build_slug] }}"
 
-- name: debootstrap
+- name: Debootstrap
   block:
     - name: Install debootstrap
       ansible.builtin.package:
